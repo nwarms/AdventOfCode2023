@@ -2,30 +2,24 @@
 
 <PageTitle>Day 1</PageTitle>
 
-<h3>Day1</h3>
+<h3>Day 1: Trebuchet?!</h3>
 <a href="https://adventofcode.com/2023/day/1">Puzzle Link</a>
 <h4>Part 1</h4>
-<h5>Input</h5>
-<p>@part1PuzzleInput</p>
-<p>Total @totalPart1</p>
+<p>Total @digitsOnlyTotal</p>
 
 <h4>Part 2</h4>
-<h5>Input</h5>
-<p>@part2PuzzleInput</p>
-<p>Total @totalPart2</p>
+<p>Total @digitsAndWordsTotal</p>
 
 @code {
     FileReader reader = new FileReader();
+    
+    List<string> calibrationFullInput = new();
+    List<string> calibrationSample1Input = new();
+    List<string> calibrationSample2Input = new();
+    int digitsOnlyTotal = 0;
+    int digitsAndWordsTotal = 0;
 
-    bool useSample = false;
-    string part1PuzzleInput = "";
-    string part2PuzzleInput = "";
-    string[] part1SplitInput = Array.Empty<string>();
-    string[] part2SplitInput = Array.Empty<string>();
-    int totalPart1 = 0;
-    int totalPart2 = 0;
-
-    Dictionary<string, int> numberWords = new() {
+    Dictionary<string, int> mapWordToNumberValue = new() {
         { "one", 1}, 
         { "two", 2 }, 
         { "three", 3 }, 
@@ -39,22 +33,12 @@
 
     private void GetPuzzleInput()
     {
-        var filename = "Day1.txt";
-        //var filename = "Day1Part1Sample.txt";
-        //var filename2 = "Day1Part2Sample.txt";
-        part1PuzzleInput = reader.ReadFile(filename);
-        part1SplitInput = part1PuzzleInput.Split('\n');
-
-        part2PuzzleInput = reader.ReadFile(filename);
-        part2SplitInput = part2PuzzleInput.Split('\n');
-    }
-
-    private void ToggleSample()
-    {
-        useSample = !useSample;
-        GetPuzzleInput();
-        Part1();
-        Part2();
+        var calibrationDocumentFilename = "Day1.txt";
+        var sample1CalibrationDocumentFilename = "Day1Part1Sample.txt";
+        var sample2CalibrationDocumentFilename = "Day1Part2Sample.txt";
+        calibrationFullInput = reader.ReadLines(calibrationDocumentFilename);
+        calibrationSample1Input = reader.ReadLines(sample1CalibrationDocumentFilename);
+        calibrationSample2Input = reader.ReadLines(sample2CalibrationDocumentFilename);
     }
 
     private List<int> GetAllDigitsFromString(string input)
@@ -62,12 +46,12 @@
         return input.Where(Char.IsDigit).Select(c => int.Parse(c.ToString())).ToList();
     }
 
-    private List<int> JoinFirstsAndLasts(IEnumerable<int> firsts, IEnumerable<int> lasts)
+    private List<int> GetCalbrationValueForEachLine(IEnumerable<int> firsts, IEnumerable<int> lasts)
     {
-        return firsts.Select<int, string>((c, index) =>
+        return firsts.Select((c, index) =>
         {
-            return $"{c}{lasts.ElementAt(index)}";
-        }).Select(n => Convert.ToInt32(n)).ToList();
+            return int.Parse($"{c}{lasts.ElementAt(index)}");
+        }).ToList();
     }
 
     private int TotalList(IEnumerable<int> numbers)
@@ -81,21 +65,21 @@
         return list.Aggregate("", (acc, x) => $"{acc}{spacingCharacter}{x}");
     }
 
-    private void Part1()
+    private void FindCalibrationTotalByDigitsOnly()
     {
-        List<List<int>> splitNumbers = part1SplitInput.Select(GetAllDigitsFromString).ToList();
-        List<int> firsts = splitNumbers.Select(m => m.First()).ToList();
-        List<int> lasts = splitNumbers.Select(m => m.Last()).ToList();
-        List<int> numbers = JoinFirstsAndLasts(firsts, lasts);
-        totalPart1 = numbers.Sum();
+        List<List<int>> allDigitsInEachLine = calibrationSample1Input.Select(GetAllDigitsFromString).ToList();
+        List<int> firstDigitOfEachLine = allDigitsInEachLine.Select(m => m.First()).ToList();
+        List<int> lastDigitOfEachLine = allDigitsInEachLine.Select(m => m.Last()).ToList();
+        List<int> numberFromEachLine = GetCalbrationValueForEachLine(firstDigitOfEachLine, lastDigitOfEachLine);
+        digitsOnlyTotal = numberFromEachLine.Sum();
     }
 
-    private void Part2()
+    private void FindCalibrationTotalByDigitsAndWords()
     {
-        var splitNumbers = part2SplitInput.Select(row =>
+        var allDigitsInEachLine = calibrationSample2Input.Select(line =>
         {
             string buffer = "";
-            return row.Select(character =>
+            return line.Select(character =>
             {
                 if (Char.IsDigit(character))
                 {
@@ -103,25 +87,25 @@
                     return int.Parse(character.ToString());
                 }
                 buffer += character;
-                var numberMatch = numberWords.FirstOrDefault(n => buffer.Contains(n.Key));
-                if (!numberMatch.Equals(default(KeyValuePair<string, int>)))
+                var matchBufferToDigitValue = mapWordToNumberValue.FirstOrDefault(n => buffer.Contains(n.Key));
+                if (!matchBufferToDigitValue.Equals(default(KeyValuePair<string, int>)))
                 {
                     buffer = buffer.Last().ToString();
-                    return numberMatch.Value;
+                    return matchBufferToDigitValue.Value;
                 }
                 return 0;
 
-            }).Where(number => number is not 0).ToList();
+            }).Where(value => value is not 0).ToList();
         }).ToList();
-        List<int> firsts = splitNumbers.Select(f => f.First()).ToList();
-        List<int> lasts = splitNumbers.Select(f => f.Last()).ToList();
-        totalPart2 = JoinFirstsAndLasts(firsts, lasts).Sum();
+        List<int> firstDigitInEachLine = allDigitsInEachLine.Select(f => f.First()).ToList();
+        List<int> lastDigitInEachLine = allDigitsInEachLine.Select(f => f.Last()).ToList();
+        digitsAndWordsTotal = GetCalbrationValueForEachLine(firstDigitInEachLine, lastDigitInEachLine).Sum();
     }
 
     protected override void OnInitialized()
     {
         GetPuzzleInput();
-        Part1();
-        Part2();
+        FindCalibrationTotalByDigitsOnly();
+        FindCalibrationTotalByDigitsAndWords();
     }
 }
