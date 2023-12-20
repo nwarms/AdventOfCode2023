@@ -1,111 +1,22 @@
 ﻿@page "/day1"
-
+@using AdventOfCode2023.Logic
 <PageTitle>Day 1</PageTitle>
 
 <h3>Day 1: Trebuchet?!</h3>
 <a href="https://adventofcode.com/2023/day/1">Puzzle Link</a>
 <h4>Part 1</h4>
-<p>Total @digitsOnlyTotal</p>
+<p>Total @part1Total</p>
 
 <h4>Part 2</h4>
-<p>Total @digitsAndWordsTotal</p>
+<p>Total @part2Total</p>
 
 @code {
-    FileReader reader = new FileReader();
-    
-    List<string> calibrationFullInput = new();
-    List<string> calibrationSample1Input = new();
-    List<string> calibrationSample2Input = new();
-    int digitsOnlyTotal = 0;
-    int digitsAndWordsTotal = 0;
-
-    Dictionary<string, int> mapWordToNumberValue = new() {
-        { "one", 1}, 
-        { "two", 2 }, 
-        { "three", 3 }, 
-        { "four", 4 }, 
-        { "five", 5 },
-        {"six", 6 }, 
-        {"seven", 7 }, 
-        {"eight", 8 }, 
-        {"nine", 9 }
-    };
-
-    private void GetPuzzleInput()
-    {
-        var calibrationDocumentFilename = "Day1.txt";
-        var sample1CalibrationDocumentFilename = "Day1Part1Sample.txt";
-        var sample2CalibrationDocumentFilename = "Day1Part2Sample.txt";
-        calibrationFullInput = reader.ReadLines(calibrationDocumentFilename);
-        calibrationSample1Input = reader.ReadLines(sample1CalibrationDocumentFilename);
-        calibrationSample2Input = reader.ReadLines(sample2CalibrationDocumentFilename);
-    }
-
-    private List<int> GetAllDigitsFromString(string input)
-    {
-        return input.Where(Char.IsDigit).Select(c => int.Parse(c.ToString())).ToList();
-    }
-
-    private List<int> GetCalbrationValueForEachLine(IEnumerable<int> firsts, IEnumerable<int> lasts)
-    {
-        return firsts.Select((c, index) =>
-        {
-            return int.Parse($"{c}{lasts.ElementAt(index)}");
-        }).ToList();
-    }
-
-    private int TotalList(IEnumerable<int> numbers)
-    {
-        return numbers.Sum();
-    }
-
-    private string ListToString<T>(List<T> list, bool? spacing = false)
-    {
-        string spacingCharacter = spacing is true ? " " : "";
-        return list.Aggregate("", (acc, x) => $"{acc}{spacingCharacter}{x}");
-    }
-
-    private void FindCalibrationTotalByDigitsOnly()
-    {
-        List<List<int>> allDigitsInEachLine = calibrationSample1Input.Select(GetAllDigitsFromString).ToList();
-        List<int> firstDigitOfEachLine = allDigitsInEachLine.Select(m => m.First()).ToList();
-        List<int> lastDigitOfEachLine = allDigitsInEachLine.Select(m => m.Last()).ToList();
-        List<int> numberFromEachLine = GetCalbrationValueForEachLine(firstDigitOfEachLine, lastDigitOfEachLine);
-        digitsOnlyTotal = numberFromEachLine.Sum();
-    }
-
-    private void FindCalibrationTotalByDigitsAndWords()
-    {
-        var allDigitsInEachLine = calibrationSample2Input.Select(line =>
-        {
-            string buffer = "";
-            return line.Select(character =>
-            {
-                if (Char.IsDigit(character))
-                {
-                    buffer = "";
-                    return int.Parse(character.ToString());
-                }
-                buffer += character;
-                var matchBufferToDigitValue = mapWordToNumberValue.FirstOrDefault(n => buffer.Contains(n.Key));
-                if (!matchBufferToDigitValue.Equals(default(KeyValuePair<string, int>)))
-                {
-                    buffer = buffer.Last().ToString();
-                    return matchBufferToDigitValue.Value;
-                }
-                return 0;
-
-            }).Where(value => value is not 0).ToList();
-        }).ToList();
-        List<int> firstDigitInEachLine = allDigitsInEachLine.Select(f => f.First()).ToList();
-        List<int> lastDigitInEachLine = allDigitsInEachLine.Select(f => f.Last()).ToList();
-        digitsAndWordsTotal = GetCalbrationValueForEachLine(firstDigitInEachLine, lastDigitInEachLine).Sum();
-    }
-
+    int part1Total;
+    int part2Total;
     protected override void OnInitialized()
     {
-        GetPuzzleInput();
-        FindCalibrationTotalByDigitsOnly();
-        FindCalibrationTotalByDigitsAndWords();
+        Logic.Day1 day1 = new Logic.Day1();
+        part1Total = day1.FindCalibrationTotalByDigitsOnly();
+        part2Total = day1.FindCalibrationTotalByDigitsAndWords();
     }
 }
