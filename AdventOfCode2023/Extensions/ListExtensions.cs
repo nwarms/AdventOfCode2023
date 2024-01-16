@@ -8,7 +8,7 @@
             return list.Aggregate("", (acc, x) => $"{acc}{spacingCharacter}{x}");
         }
         
-        public static int TotalList(IEnumerable<int> numbers)
+        public static int TotalList(this IEnumerable<int> numbers)
         {
             return numbers.Sum();
         }

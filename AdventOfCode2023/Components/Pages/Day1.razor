@@ -1,22 +1,21 @@
 ﻿@page "/day1"
-@using AdventOfCode2023.Logic
 <PageTitle>Day 1</PageTitle>
 
 <h3>Day 1: Trebuchet?!</h3>
 <a href="https://adventofcode.com/2023/day/1">Puzzle Link</a>
 <h4>Part 1</h4>
-<p>Total @part1Total</p>
+<p>Total @_part1Total</p>
 
 <h4>Part 2</h4>
-<p>Total @part2Total</p>
+<p>Total @_part2Total</p>
 
 @code {
-    int part1Total;
-    int part2Total;
+    int _part1Total;
+    int _part2Total;
     protected override void OnInitialized()
     {
-        Logic.Day1 day1 = new Logic.Day1();
-        part1Total = day1.FindCalibrationTotalByDigitsOnly();
-        part2Total = day1.FindCalibrationTotalByDigitsAndWords();
+        var day1 = new Logic.Day1();
+        _part1Total = day1.FindCalibrationTotalByDigitsOnly();
+        _part2Total = day1.FindCalibrationTotalByDigitsAndWords();
     }
 }

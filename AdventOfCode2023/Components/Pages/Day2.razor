@@ -1,5 +1,75 @@
-﻿<h3>Day2</h3>
+﻿@page "/day2"
+@using AdventOfCode2023.Constants
+@using AdventOfCode2023.Extensions
+<PageTitle>Day 2: Cube Conundrum</PageTitle>
+
+<h3>Day 2: Cube Conundrum</h3>
+<a href="https://adventofcode.com/2023/day/2">Puzzle Link</a>
+<h4>Part 1</h4>
+<p>Sample @_part1SampleTotal</p>
+<ul>
+    @foreach (var game in puzzleInput)
+    {
+        <li class=@CalculateGameClass(game)>
+            <b>Game @Logic.Day2.GetGameId(game): </b>
+            <span>
+                @foreach (var handfuls in @Logic.Day2.GetFullGame(game).Item2)
+                {
+                    var i = 1;
+                    @foreach (var handful in handfuls)
+                    {
+                        <span class=@CalculateHandfulClass(handful)>@handful.Value&nbsp;@handful.Key @if(i<handfuls.Count){ <span>,&nbsp;</span> }</span>
+                        i++;
+                    }
+                    <span>;&nbsp;</span>
+                }
+            </span>
+        </li>
+    }
+</ul>
+<p>Total @_part1Total</p>
+
+<h4>Part 2</h4>
+<p>Sample @_part2SampleTotal</p>
+<p>Total @_part2Total</p>
 
 @code {
+    int _part1Total;
+    IEnumerable<int> _part1Ids;
+    int _part1SampleTotal;
+    int _part2Total;
+    int _part2SampleTotal;
+    IEnumerable<string> puzzleInput;
+
+    protected override void OnInitialized()
+    {
+        var day2 = new Logic.Day2();
+        puzzleInput = day2.GetPuzzleInput(InputFiles.FullInput);
+        _part1SampleTotal = day2.GetTotalOfAllValidGameIds(InputFiles.Sample1).TotalList();
+        _part1Ids = day2.GetTotalOfAllValidGameIds();
+        _part1Total = _part1Ids.TotalList();
+        _part2SampleTotal = day2.GetPowersOfAllGames(InputFiles.Sample1).TotalList();
+        _part2Total = day2.GetPowersOfAllGames().TotalList();
+    }
+
+    private string CalculateGameClass(string gameInput)
+    {
+        if (Logic.Day2.IsGameValid(gameInput).Item1)
+        {
+            return "bg-success";
+        }
+
+        return "bg-danger";
+    }
+
+    private string CalculateHandfulClass(KeyValuePair<string, int> handful)
+    {
+        if (Logic.Day2.IsHandfulValid(handful))
+        {
+            return string.Empty;
+        }
+
+        return "text-white bg-black";
+    }
 
 }
